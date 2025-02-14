@@ -157,3 +157,18 @@ python main.py <video_file> <output_subtitle_file> [--format srt|ass] [--model b
 **Temporary Files:**
 - Generates temporary audio and transcript files which are cleaned up after processing.
 
+## utils.py Summary
+
+**Purpose:**  
+Provides common utility functions for logging configuration, safe file removal, and file existence checks.
+
+**Key Functions:**
+- `setup_logging(level=logging.DEBUG)`
+  - Configures and returns a logger for consistent logging across all modules.
+- `safe_remove(file_path)`
+  - Safely deletes a file if it exists, logging any issues encountered.
+- `file_exists_or_error(file_path)`
+  - Checks for a file's existence and logs an error if the file is missing.
+
+**Usage:**  
+Import these functions in your other modules to ensure standardized behavior and robust error handling.
