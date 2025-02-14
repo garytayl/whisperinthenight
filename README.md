@@ -1,203 +1,200 @@
 # whisperinthenight
 
-## audio_extraction.py Summary
+Welcome to **whisperinthenight**—an automated subtitle generation pipeline that extracts audio from videos, transcribes the audio using OpenAI's Whisper, optionally assigns speaker labels via diarization, and produces polished subtitle files (SRT/ASS) ready for use in your video editing software.
 
+---
+
+## Table of Contents
+- [Overview](#overview)
+- [Workflow](#workflow)
+- [Modules](#modules)
+  - [audio_extraction.py](#audio_extractionpy-summary)
+  - [transcription.py](#transcriptionpy-summary)
+  - [diarization.py](#diarizationpy-summary)
+  - [subtitle_export.py](#subtitle_exportpy-summary)
+  - [main.py](#mainpy-summary)
+  - [utils.py](#utilspy-summary)
+  - [gui.py](#guipy-summary)
+- [Usage](#usage)
+- [Requirements](#requirements)
+- [License](#license)
+
+---
+
+## Overview
+**whisperinthenight** is designed to transform your video files into professionally formatted subtitles by executing the following steps:
+1. **Audio Extraction:** Extract audio from your video using FFmpeg.
+2. **Transcription:** Transcribe the audio with OpenAI's Whisper.
+3. **Diarization (Optional):** Label speakers using pyannote.audio.
+4. **Subtitle Generation:** Format the transcript into SRT or ASS subtitle files.
+5. **Orchestration:** Tie everything together via a CLI or GUI interface.
+
+---
+
+## Workflow
+1. **Audio Extraction:**  
+   - The process begins with `main.py`, which calls the `audio_extraction.py` module.
+   - **How they talk:** `main.py` passes the input video file path to `audio_extraction.extract_audio()`, which extracts the audio and saves it as a temporary audio file.
+
+2. **Transcription:**  
+   - Next, `main.py` invokes `transcription.py` by calling `transcription.transcribe_audio()`, supplying the temporary audio file.
+   - **How they talk:** The output is a transcript (a dictionary with timestamped segments) that `main.py` receives for further processing.
+
+3. **Diarization (Optional):**  
+   - If enabled, `main.py` then calls `diarization.label_speakers()`, passing in the temporary audio file and the transcript segments.
+   - **How they talk:** `diarization.py` processes these segments, assigning speaker labels based on overlap analysis, and returns the enriched transcript to `main.py`.
+
+4. **Subtitle Generation:**  
+   - With the final transcript ready, `main.py` calls the appropriate function from `subtitle_export.py` (either `generate_srt()` or `generate_ass()`).
+   - **How they talk:** The transcript (with or without speaker labels) is formatted into the desired subtitle file, which is then output for use in video editing software.
+
+5. **Orchestration & Cleanup:**  
+   - Throughout the process, `main.py` uses `utils.py` functions to manage logging, check file existence, and safely remove temporary files.
+   - **How they talk:** `main.py` orchestrates the overall flow, ensuring that each module receives the correct input from the previous step and cleans up temporary artifacts after processing.
+
+6. **Graphical Interface:**  
+   - For users preferring a visual approach, `gui.py` provides a Tkinter-based interface that wraps the entire CLI process.
+   - **How they talk:** The GUI collects user inputs and then internally calls the same functions from `main.py`, providing real-time log updates and file dialogs.
+
+---
+---
+
+## Modules
+
+### audio_extraction.py Summary
 **Purpose:**  
 Extracts audio from video files using FFmpeg.
 
 **Key Function:**  
-`extract_audio(video_path, output_audio_path)`  
-- Verifies that the video file exists.  
-- Executes FFmpeg to extract the audio while handling potential errors.  
-- Logs detailed debug and error messages to assist in troubleshooting.
+```python
+extract_audio(video_path, output_audio_path)
+```
+- **Verification:** Checks that the video file exists.
+- **Execution:** Runs FFmpeg to extract the audio.
+- **Logging:** Provides detailed INFO and DEBUG logs for process tracing and error handling.
 
 **CLI Usage:**  
-Run the script with:
 ```bash
 python audio_extraction.py <path_to_video> <output_audio_path>
 ```
-**Logging:**
 
-- Extensive INFO and DEBUG level logging to trace process flow and errors.
-- Error messages help identify and fix issues during extraction.
+---
 
-## transcription.py Summary
-
+### transcription.py Summary
 **Purpose:**  
 Transcribes an audio file using OpenAI's Whisper model.
 
 **Key Function:**  
-`transcribe_audio(audio_path, model_name="base", language="en")`  
-- Checks that the audio file exists.  
-- Loads the specified Whisper model.  
-- Transcribes the audio and returns a dictionary containing segments (with start, end, and text) plus the full transcription text.  
-- Logs detailed debug and error messages to assist in troubleshooting.
+```python
+transcribe_audio(audio_path, model_name="base", language="en")
+```
+- **Verification:** Ensures the audio file exists.
+- **Model Loading:** Loads the specified Whisper model.
+- **Transcription:** Converts audio to text with timestamped segments.
+- **Logging:** Offers comprehensive debug and error messages.
 
 **CLI Usage:**  
-Run the script with:
 ```bash
 python transcription.py <path_to_audio> [--model base] [--language en]
 ```
 
-**Logging:**
+---
 
-- Extensive INFO and DEBUG level logging to trace process flow and errors.
-- Error messages help diagnose issues during model loading and transcription.
-vbnet
-
-
-## diarization.py Summary
-
+### diarization.py Summary
 **Purpose:**  
-Labels transcript segments with speaker information using pyannote.audio for speaker diarization.
+Labels transcript segments with speaker information using pyannote.audio.
 
-**Key Functions:**
-- `label_speakers(audio_path, transcript_segments, hf_token)`  
-  - Verifies that the audio file exists.
-  - Loads the pyannote diarization pipeline using a HuggingFace token.
-  - Runs diarization on the audio file.
-  - Converts the diarization output to segments.
-  - Merges transcript segments with diarization data by calculating overlap durations to assign speaker labels.
-  - Returns transcript segments with an added `speaker` field.
+**Key Function:**  
+```python
+label_speakers(audio_path, transcript_segments, hf_token)
+```
+- **Verification:** Confirms that the audio file exists.
+- **Pipeline Loading:** Loads the pyannote diarization pipeline using a HuggingFace token.
+- **Processing:** Runs diarization on the audio file.
+- **Merging:** Aligns transcript segments with speaker labels.
 
 **CLI Usage:**  
-Run the script with:
 ```bash
 python diarization.py <path_to_audio> <path_to_transcript_json> <output_json> --hf_token <your_huggingface_token>
 ```
-**Logging:**
 
-- Detailed INFO and DEBUG logging to trace pipeline loading, processing, and merging steps.
-- Comprehensive error logging to diagnose issues with file I/O, model loading, or processing.
+---
 
-## subtitle_export.py Summary
-
+### subtitle_export.py Summary
 **Purpose:**  
 Generates subtitle files (SRT and ASS) from transcript segments.
 
 **Key Functions:**
-- `generate_srt(segments, output_file)`  
-  - Converts transcript segments into an SRT file with formatted time codes.
-- `generate_ass(segments, output_file)`  
-  - Converts transcript segments into an ASS file with formatted time codes.
-  - Dynamically assigns color codes to speakers for visual differentiation.
+```python
+generate_srt(segments, output_file)  # Formats transcript segments into an SRT file
+generate_ass(segments, output_file)  # Formats transcript segments into an ASS file with color coding
+```
 
 **CLI Usage:**  
-Run the script with:
 ```bash
 python subtitle_export.py <transcript_json> <output_subtitle_file> [--format srt|ass]
 ```
-**Logging:**
 
-- Detailed INFO and DEBUG logs track the generation process.
-- Error logging captures issues during file I/O and formatting.
+---
 
-**Example Output**
-Assuming a transcript JSON with the following content:
-```bash
-{
-  "segments": [
-    { "start": 0.0, "end": 3.2, "text": "Hello, world!", "speaker": "Speaker 1" },
-    { "start": 3.3, "end": 5.0, "text": "This is a test.", "speaker": "Speaker 2" }
-  ]
-}
-```
-**Example SRT Output**
-```bash
-1
-00:00:00,000 --> 00:00:03,200
-Speaker 1: Hello, world!
-
-2
-00:00:03,300 --> 00:00:05,000
-Speaker 2: This is a test.
-```
-**Example ASS Output**
-```bash
-[Script Info]
-ScriptType: v4.00+
-Collisions: Normal
-PlayResX: 1920
-PlayResY: 1080
-Timer: 100.0000
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Arial,36,&H00FFFFFF,&H000000FF,&H00000000,&H64000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:03.20,Default,Speaker 1,0000,0000,0000,,{\c&H00FF00}Hello, world!
-Dialogue: 0,0:00:03.30,0:00:05.00,Default,Speaker 2,0000,0000,0000,,{\c&H0000FF}This is a test.
-```
-
-## main.py Summary
-
+### main.py Summary
 **Purpose:**  
 Orchestrates the entire workflow—audio extraction, transcription, optional diarization, and subtitle generation.
 
 **Workflow:**
-1. **Audio Extraction:**  
-   - Uses `audio_extraction.extract_audio()` to extract audio from the provided video file.
-2. **Transcription:**  
-   - Transcribes the extracted audio using `transcription.transcribe_audio()`.
-3. **Diarization (Optional):**  
-   - If `--use-diarization` is enabled, applies `diarization.label_speakers()` to assign speaker labels.
-4. **Subtitle Generation:**  
-   - Generates subtitles in SRT or ASS format using `subtitle_export.generate_srt()` or `generate_ass()`.
+- **Audio Extraction:** Calls `extract_audio()` to obtain the audio track.
+- **Transcription:** Uses `transcribe_audio()` to generate timestamped text.
+- **Diarization (Optional):** Applies `label_speakers()` if enabled.
+- **Subtitle Generation:** Outputs subtitles in SRT or ASS format.
+- **Cleanup:** Removes temporary files after processing.
 
 **CLI Usage:**  
-Run the script with:
 ```bash
 python main.py <video_file> <output_subtitle_file> [--format srt|ass] [--model base] [--language en] [--use-diarization] [--hf_token <token>]
 ```
-**Logging:**
-- Detailed INFO, DEBUG, and ERROR logs trace each step.
-- Robust error handling ensures smooth troubleshooting.
-**Temporary Files:**
-- Generates temporary audio and transcript files which are cleaned up after processing.
 
-## utils.py Summary
+---
 
+### gui.py Summary
 **Purpose:**  
-Provides common utility functions for logging configuration, safe file removal, and file existence checks.
+Provides a Tkinter-based GUI for ease of use.
 
-**Key Functions:**
-- `setup_logging(level=logging.DEBUG)`
-  - Configures and returns a logger for consistent logging across all modules.
-- `safe_remove(file_path)`
-  - Safely deletes a file if it exists, logging any issues encountered.
-- `file_exists_or_error(file_path)`
-  - Checks for a file's existence and logs an error if the file is missing.
+**Features:**
+- Drag-and-drop file selection
+- Format, model, and language options
+- Real-time log display
+- Non-blocking execution via threading
 
 **Usage:**  
-Import these functions in your other modules to ensure standardized behavior and robust error handling.
-
-## gui.py Summary
-
-**Purpose:**  
-Provides a simple Tkinter-based GUI for the entire workflow:
-- Video file selection
-- Output subtitle file selection
-- Options for subtitle format (SRT/ASS), Whisper model, language, and optional diarization (with HF token)
-
-**Key Features:**
-- **File Browsing:** Easily select input video and output file via dialogs.
-- **Options:** Choose subtitle format, model, language, and enable diarization.
-- **Logging:** A built-in log display shows process updates.
-- **Threading:** Runs the process in a separate thread to keep the GUI responsive.
-
-**Usage:**  
-Run the script with:
 ```bash
 python gui.py
 ```
-**Workflow:**
-1. Select the video and output subtitle file.
-2. Choose your options.
-3. Click "Run" to execute the process:
-  - Audio extraction
-  - Transcription
-  - Optional Diarization
-  - Subtitle Generation
-4. View process logs and results.
+
+---
+
+## Usage
+For command-line usage, run `main.py` with the appropriate parameters, or launch the GUI with `gui.py`.
+
+**Example (CLI):**
+```bash
+python main.py my_video.mp4 subtitles.srt --format srt --model base --language en --use-diarization --hf_token YOUR_HF_TOKEN
+```
+
+**Example (GUI):**
+```bash
+python gui.py
+```
+
+---
+
+## Requirements
+- Python 3.x
+- FFmpeg
+- OpenAI Whisper (`pip install openai-whisper`)
+- pyannote.audio (`pip install pyannote.audio`)
+- Tkinter (included with Python)
+- Other standard Python libraries (e.g., `argparse`, `logging`, `json`)
+
+---
+
+Enjoy creating professional subtitles with **whisperinthenight**!
