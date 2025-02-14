@@ -1,6 +1,6 @@
 # whisperinthenight
 
-# audio_extraction.py Summary
+## audio_extraction.py Summary
 
 **Purpose:**  
 Extracts audio from video files using FFmpeg.
@@ -16,7 +16,7 @@ Run the script with:
 ```bash
 python audio_extraction.py <path_to_video> <output_audio_path>
 ```
-**Logging:***
+**Logging:**
 
 - Extensive INFO and DEBUG level logging to trace process flow and errors.
 - Error messages help identify and fix issues during extraction.
