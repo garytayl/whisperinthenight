@@ -130,3 +130,30 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:03.20,Default,Speaker 1,0000,0000,0000,,{\c&H00FF00}Hello, world!
 Dialogue: 0,0:00:03.30,0:00:05.00,Default,Speaker 2,0000,0000,0000,,{\c&H0000FF}This is a test.
 ```
+
+## main.py Summary
+
+**Purpose:**  
+Orchestrates the entire workflow—audio extraction, transcription, optional diarization, and subtitle generation.
+
+**Workflow:**
+1. **Audio Extraction:**  
+   - Uses `audio_extraction.extract_audio()` to extract audio from the provided video file.
+2. **Transcription:**  
+   - Transcribes the extracted audio using `transcription.transcribe_audio()`.
+3. **Diarization (Optional):**  
+   - If `--use-diarization` is enabled, applies `diarization.label_speakers()` to assign speaker labels.
+4. **Subtitle Generation:**  
+   - Generates subtitles in SRT or ASS format using `subtitle_export.generate_srt()` or `generate_ass()`.
+
+**CLI Usage:**  
+Run the script with:
+```bash
+python main.py <video_file> <output_subtitle_file> [--format srt|ass] [--model base] [--language en] [--use-diarization] [--hf_token <token>]
+```
+**Logging:**
+- Detailed INFO, DEBUG, and ERROR logs trace each step.
+- Robust error handling ensures smooth troubleshooting.
+**Temporary Files:**
+- Generates temporary audio and transcript files which are cleaned up after processing.
+
