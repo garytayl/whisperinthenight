@@ -4,6 +4,8 @@ Welcome to **whisperinthenight**—an automated subtitle generation pipeline tha
 
 ---
 
+For installation and setup instructions, see [SETUP.md](SETUP.md).
+
 ## Table of Contents
 - [Overview](#overview)
 - [Workflow](#workflow)
