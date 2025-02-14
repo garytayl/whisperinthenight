@@ -69,3 +69,64 @@ python diarization.py <path_to_audio> <path_to_transcript_json> <output_json> --
 
 - Detailed INFO and DEBUG logging to trace pipeline loading, processing, and merging steps.
 - Comprehensive error logging to diagnose issues with file I/O, model loading, or processing.
+
+## subtitle_export.py Summary
+
+**Purpose:**  
+Generates subtitle files (SRT and ASS) from transcript segments.
+
+**Key Functions:**
+- `generate_srt(segments, output_file)`  
+  - Converts transcript segments into an SRT file with formatted time codes.
+- `generate_ass(segments, output_file)`  
+  - Converts transcript segments into an ASS file with formatted time codes.
+  - Dynamically assigns color codes to speakers for visual differentiation.
+
+**CLI Usage:**  
+Run the script with:
+```bash
+python subtitle_export.py <transcript_json> <output_subtitle_file> [--format srt|ass]
+```
+**Logging:**
+
+- Detailed INFO and DEBUG logs track the generation process.
+- Error logging captures issues during file I/O and formatting.
+
+**Example Output**
+Assuming a transcript JSON with the following content:
+```bash
+{
+  "segments": [
+    { "start": 0.0, "end": 3.2, "text": "Hello, world!", "speaker": "Speaker 1" },
+    { "start": 3.3, "end": 5.0, "text": "This is a test.", "speaker": "Speaker 2" }
+  ]
+}
+```
+**Example SRT Output**
+```bash
+1
+00:00:00,000 --> 00:00:03,200
+Speaker 1: Hello, world!
+
+2
+00:00:03,300 --> 00:00:05,000
+Speaker 2: This is a test.
+```
+**Example ASS Output**
+```bash
+[Script Info]
+ScriptType: v4.00+
+Collisions: Normal
+PlayResX: 1920
+PlayResY: 1080
+Timer: 100.0000
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,36,&H00FFFFFF,&H000000FF,&H00000000,&H64000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.20,Default,Speaker 1,0000,0000,0000,,{\c&H00FF00}Hello, world!
+Dialogue: 0,0:00:03.30,0:00:05.00,Default,Speaker 2,0000,0000,0000,,{\c&H0000FF}This is a test.
+```
