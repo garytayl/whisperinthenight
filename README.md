@@ -172,3 +172,32 @@ Provides common utility functions for logging configuration, safe file removal, 
 
 **Usage:**  
 Import these functions in your other modules to ensure standardized behavior and robust error handling.
+
+## gui.py Summary
+
+**Purpose:**  
+Provides a simple Tkinter-based GUI for the entire workflow:
+- Video file selection
+- Output subtitle file selection
+- Options for subtitle format (SRT/ASS), Whisper model, language, and optional diarization (with HF token)
+
+**Key Features:**
+- **File Browsing:** Easily select input video and output file via dialogs.
+- **Options:** Choose subtitle format, model, language, and enable diarization.
+- **Logging:** A built-in log display shows process updates.
+- **Threading:** Runs the process in a separate thread to keep the GUI responsive.
+
+**Usage:**  
+Run the script with:
+```bash
+python gui.py
+```
+**Workflow:**
+1. Select the video and output subtitle file.
+2. Choose your options.
+3. Click "Run" to execute the process:
+  - Audio extraction
+  - Transcription
+  - Optional Diarization
+  - Subtitle Generation
+4. View process logs and results.
