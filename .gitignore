@@ -1,1 +1,9 @@
+# Ignore model weights
+*.pt
+*.bin
+__pycache__/
+*.wav
+*.mp4
+venv/
+.cache/
 
