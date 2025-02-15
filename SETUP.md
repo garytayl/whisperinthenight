@@ -42,6 +42,7 @@ Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
+```bash sudo apt-get install python3-tk ```
 
 **Note:** FFmpeg is a system dependency. Ensure it is installed and in your PATH.
 
